@@ -48,20 +48,246 @@ w3 = Web3(Web3.HTTPProvider(RPC_URL))
 # Contract address (provided by user)
 CONTRACT_ADDRESS = '0x24c97ccB47ee7b041E581AE49dE1535A85835B70'
 
-# ABI (provided by user)
+# ABI (provided by user, corrected false to False)
 ABI = [
-    {"anonymous": false, "inputs": [{"indexed": true, "internalType": "address", "name": "from", "type": "address"}, {"indexed": true, "internalType": "address", "name": "to", "type": "address"}, {"indexed": false, "internalType": "string", "name": "action", "type": "string"}, {"indexed": false, "internalType": "uint256", "name": "timestamp", "type": "uint256"}], "name": "ActionPerformed", "type": "event"},
-    {"inputs": [], "name": "deployBot", "outputs": [], "stateMutability": "nonpayable", "type": "function"},
-    {"inputs": [{"internalType": "address", "name": "target", "type": "address"}], "name": "hack", "outputs": [], "stateMutability": "nonpayable", "type": "function"},
-    {"inputs": [{"internalType": "address", "name": "target", "type": "address"}], "name": "injection", "outputs": [], "stateMutability": "nonpayable", "type": "function"},
-    {"inputs": [{"internalType": "address", "name": "target", "type": "address"}], "name": "phishing", "outputs": [], "stateMutability": "nonpayable", "type": "function"},
-    {"inputs": [], "name": "register", "outputs": [], "stateMutability": "nonpayable", "type": "function"},
-    {"inputs": [{"internalType": "uint256", "name": "", "type": "uint256"}], "name": "actionHistory", "outputs": [{"internalType": "address", "name": "from", "type": "address"}, {"internalType": "address", "name": "to", "type": "address"}, {"internalType": "string", "name": "action", "type": "string"}, {"internalType": "uint256", "name": "timestamp", "type": "uint256"}], "stateMutability": "view", "type": "function"},
-    {"inputs": [], "name": "getActionHistory", "outputs": [{"components": [{"internalType": "address", "name": "from", "type": "address"}, {"internalType": "address", "name": "to", "type": "address"}, {"internalType": "string", "name": "action", "type": "string"}, {"internalType": "uint256", "name": "timestamp", "type": "uint256"}], "internalType": "struct CyberOverlords.ActionEvent[]", "name": "", "type": "tuple[]"}], "stateMutability": "view", "type": "function"},
-    {"inputs": [{"internalType": "address", "name": "addr", "type": "address"}], "name": "getPlayer", "outputs": [{"internalType": "uint256", "name": "mon", "type": "uint256"}, {"internalType": "uint256", "name": "power", "type": "uint256"}, {"internalType": "string[]", "name": "nfts", "type": "string[]"}], "stateMutability": "view", "type": "function"},
-    {"inputs": [], "name": "getPlayers", "outputs": [{"internalType": "address[]", "name": "", "type": "address[]"}], "stateMutability": "view", "type": "function"},
-    {"inputs": [{"internalType": "uint256", "name": "", "type": "uint256"}], "name": "playerList", "outputs": [{"internalType": "address", "name": "", "type": "address"}], "stateMutability": "view", "type": "function"},
-    {"inputs": [{"internalType": "address", "name": "", "type": "address"}], "name": "players", "outputs": [{"internalType": "uint256", "name": "mon", "type": "uint256"}, {"internalType": "uint256", "name": "power", "type": "uint256"}], "stateMutability": "view", "type": "function"}
+  {
+    "anonymous": False,
+    "inputs": [
+      {
+        "indexed": True,
+        "internalType": "address",
+        "name": "from",
+        "type": "address"
+      },
+      {
+        "indexed": True,
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "indexed": False,
+        "internalType": "string",
+        "name": "action",
+        "type": "string"
+      },
+      {
+        "indexed": False,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "ActionPerformed",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "deployBot",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "target",
+        "type": "address"
+      }
+    ],
+    "name": "hack",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "target",
+        "type": "address"
+      }
+    ],
+    "name": "injection",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "target",
+        "type": "address"
+      }
+    ],
+    "name": "phishing",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "register",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "actionHistory",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "from",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "action",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getActionHistory",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "from",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "internalType": "string",
+            "name": "action",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "timestamp",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct CyberOverlords.ActionEvent[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "addr",
+        "type": "address"
+      }
+    ],
+    "name": "getPlayer",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "mon",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "power",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string[]",
+        "name": "nfts",
+        "type": "string[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getPlayers",
+    "outputs": [
+      {
+        "internalType": "address[]",
+        "name": "",
+        "type": "address[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "playerList",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "players",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "mon",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "power",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
 ]
 
 contract = w3.eth.contract(address=CONTRACT_ADDRESS, abi=ABI)
@@ -198,7 +424,7 @@ st.components.v1.html("""
 """ % (CONTRACT_ADDRESS, ABI), height=200)
 
 # AI Mode Toggle
-st.session_state.ai_mode = st.checkbox("Enable AI Mode (Play Against Computer)")
+st.session_state.ai_mode = st.checkbox("Enable AI Mode (Play Against Computer)", value=True)  # Default on for solo play
 
 if st.session_state.ai_mode:
     if not st.session_state.ai_opponents:
@@ -207,8 +433,8 @@ if st.session_state.ai_mode:
 
 # Simulated Attack Timer
 if st.session_state.ai_mode:
-    st.session_state.attack_timer += 1
-    if st.session_state.attack_timer % 30 == 0:  # Every 30 seconds (approx, since rerun)
+    # Simulate timer with button or auto (using rerun for simplicity)
+    if st.button("Simulate Incoming Attack"):
         attack_type, damage = simulate_ai_action(st.session_state.my_data)
         st.session_state.game_output.append(f"AI Attack ({attack_type})! Lost {damage} resources.")
         st.error("Cyber Attack Simulated! Defend now.")
@@ -259,7 +485,6 @@ with st.sidebar:
     target = st.selectbox("Select Target", target_options)
     if st.button("Hack (Spam Tiny tMONAD)"):
         if 'AI' in target:
-            # Simulate AI hack
             st.session_state.my_data["power"] += 10
             st.session_state.game_output.append(f"Simulated Hack on AI {target}! Gained 10 power.")
         else:
