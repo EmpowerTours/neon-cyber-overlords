@@ -7,7 +7,6 @@ import pandas as pd
 import ecdsa
 import hashlib
 import binascii
-import threading
 
 # Custom CSS for clean, neon-themed UI
 st.markdown("""
@@ -296,17 +295,26 @@ ABI = [
 
 contract = w3.eth.contract(address=CONTRACT_ADDRESS, abi=ABI)
 
-# Session state
+# Session state initialization
 if 'game_output' not in st.session_state:
     st.session_state.game_output = ["Connect wallet to start."]
+if 'connected_address' not in st.session_state:
     st.session_state.connected_address = None
+if 'players' not in st.session_state:
     st.session_state.players = []
+if 'my_data' not in st.session_state:
     st.session_state.my_data = {"mon": 0, "power": 0, "nfts": []}
+if 'action_history' not in st.session_state:
     st.session_state.action_history = []
+if 'ai_mode' not in st.session_state:
     st.session_state.ai_mode = False
-    st.session_state.ai_opponents = []  # For AI mode
-    st.session_state.attack_timer = 0  # For simulated attacks
-    st.session_state.bots = []  # List of {'address': str, 'private_key': str}
+if 'ai_opponents' not in st.session_state:
+    st.session_state.ai_opponents = []
+if 'attack_timer' not in st.session_state:
+    st.session_state.attack_timer = 0
+if 'bots' not in st.session_state:
+    st.session_state.bots = []
+if 'auto_refresh' not in st.session_state:
     st.session_state.auto_refresh = False
 
 # Generate Real Monad Wallet for Bot
@@ -334,7 +342,7 @@ def sign_and_send(method, params, private_key):
     tx_hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
     return tx_hash.hex()
 
-# AI Mode Functions
+# AI Mode Functions (with bot wallets)
 def generate_ai_opponent():
     bot = generate_wallet()  # Real wallet for bot
     st.session_state.bots.append(bot)
@@ -343,8 +351,7 @@ def generate_ai_opponent():
     return {"address": bot['address'], "data": ai_data, "private_key": bot['private_key']}
 
 def simulate_ai_action(user_data):
-    attack_type = random.choice(["hack", "injection", "phishing"])
-    damage = random.randint(10, 50)
+    attack_type, damage = random.choice(["hack", "injection", "phishing"]), random.randint(10, 50)
     if attack_type == "hack":
         user_data["mon"] -= damage
     elif attack_type == "injection":
@@ -359,7 +366,7 @@ def defend_simulation():
     st.session_state.my_data["power"] += boost
     st.session_state.game_output.append(f"Defended successfully! Gained {boost} power.")
 
-# Fetch Functions
+# Fetch Functions (real-time logs with tx hashes)
 def fetch_players():
     try:
         st.session_state.players = contract.functions.getPlayers().call()
@@ -406,25 +413,6 @@ def plot_activity_graph():
     # Table of recent tx
     st.subheader("Recent Tx Hashes")
     st.table(df[['Time', 'Tx Hash']])
-
-# Auto Refresh Thread
-def auto_refresh():
-    while st.session_state.auto_refresh:
-        fetch_action_history()
-        time.sleep(5)
-        st.rerun()
-
-if 'auto_thread' not in st.session_state:
-    st.session_state.auto_thread = None
-
-if st.button("Toggle Auto Refresh (Every 5s for Real-Time Graph)"):
-    st.session_state.auto_refresh = not st.session_state.auto_refresh
-    if st.session_state.auto_refresh:
-        st.session_state.auto_thread = threading.Thread(target=auto_refresh)
-        st.session_state.auto_thread.start()
-    else:
-        if st.session_state.auto_thread:
-            st.session_state.auto_thread.join()  # Wait for thread to stop
 
 # Main App
 st.title("Neon Cyber Overlords v1 - Testing Monad Limits")
@@ -489,7 +477,7 @@ if st.button("Bot Hack (Sign and Send from Bot)"):
         st.error(f"Error: {str(e)}")
 
 # Bot Swarm Test (create and register multiple, but fund manual)
-if st.button("Create Bot Swarm (10 Bots for Limit Testing)"):
+if st.button("Create Bot Swarm (10 Bots for Limit testing)"):
     for _ in range(10):
         bot = generate_wallet()
         st.session_state.bots.append(bot)
