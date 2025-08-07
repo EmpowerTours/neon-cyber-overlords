@@ -4,6 +4,10 @@ import time
 from web3 import Web3
 import altair as alt
 import pandas as pd
+import ecdsa
+import hashlib
+import binascii
+import threading
 
 # Custom CSS for clean, neon-themed UI
 st.markdown("""
@@ -48,7 +52,7 @@ w3 = Web3(Web3.HTTPProvider(RPC_URL))
 # Contract address (provided by user)
 CONTRACT_ADDRESS = '0x24c97ccB47ee7b041E581AE49dE1535A85835B70'
 
-# ABI (provided by user, corrected booleans to Python False/True)
+# ABI (provided by user, with booleans as False/True)
 ABI = [
   {
     "anonymous": False,
@@ -302,15 +306,41 @@ if 'game_output' not in st.session_state:
     st.session_state.ai_mode = False
     st.session_state.ai_opponents = []  # For AI mode
     st.session_state.attack_timer = 0  # For simulated attacks
+    st.session_state.bots = []  # List of {'address': str, 'private_key': str}
+    st.session_state.auto_refresh = False
 
-# AI Mode Functions
+# Generate Real Monad Wallet for Bot
+def generate_wallet():
+    sk = ecdsa.SigningKey.generate(curve=ecdsa.SECP256k1)
+    private_key = '0x' + sk.to_string().hex()
+    vk = sk.verifying_key
+    public_key = b'\x04' + vk.to_string()
+    keccak = hashlib.sha3_256(public_key[1:]).digest()
+    address = '0x' + keccak[-20:].hex()
+    return {'address': address, 'private_key': private_key}
+
+# Sign and Send Tx from Bot
+def sign_and_send(method, params, private_key):
+    account = w3.eth.account.from_key(private_key)
+    nonce = w3.eth.get_transaction_count(account.address)
+    tx = contract.functions[method](*params).build_transaction({
+        'from': account.address,
+        'nonce': nonce,
+        'gas': 200000,
+        'gasPrice': w3.to_wei('1', 'gwei'),
+        'chainId': 10143  # Monad Testnet Chain ID
+    })
+    signed_tx = w3.eth.account.sign_transaction(tx, private_key)
+    tx_hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
+    return tx_hash.hex()
+
+# AI Mode Functions (slightly updated for bot integration if funded)
 def generate_ai_opponent():
-    ai_address = f"AI_{random.randint(1000, 9999)}"  # Fake address
+    ai_address = f"AI_{random.randint(1000, 9999)}"  # Fake address for simulation
     ai_data = {"mon": random.randint(500, 1500), "power": random.randint(50, 200)}
     return {"address": ai_address, "data": ai_data}
 
 def simulate_ai_action(user_data):
-    # AI "attacks" user
     attack_type = random.choice(["hack", "injection", "phishing"])
     damage = random.randint(10, 50)
     if attack_type == "hack":
@@ -323,12 +353,11 @@ def simulate_ai_action(user_data):
     return attack_type, damage
 
 def defend_simulation():
-    # User "defends" by boosting power
     boost = random.randint(20, 60)
     st.session_state.my_data["power"] += boost
     st.session_state.game_output.append(f"Defended successfully! Gained {boost} power.")
 
-# Fetch Functions
+# Fetch Functions (updated for real-time logs with tx hashes)
 def fetch_players():
     try:
         st.session_state.players = contract.functions.getPlayers().call()
@@ -345,32 +374,61 @@ def fetch_my_data():
 
 def fetch_action_history():
     try:
-        history = contract.functions.getActionHistory().call()
-        st.session_state.action_history = history
+        current_block = w3.eth.block_number
+        logs = w3.eth.get_logs({'fromBlock': current_block - 100, 'toBlock': 'latest', 'address': CONTRACT_ADDRESS})
+        data = []
+        for log in logs:
+            block = w3.eth.get_block(log.blockNumber)
+            data.append({
+                'Time': block['timestamp'],
+                'Action': 1,
+                'Tx Hash': log.transactionHash.hex()
+            })
+        st.session_state.action_history = data
     except Exception as e:
-        st.error(f"Error fetching history: {str(e)}")
+        st.error(f"Error fetching logs: {str(e)}")
 
 def plot_activity_graph():
     if not st.session_state.action_history:
         st.info("No activities yet.")
         return
-    data = []
-    for event in st.session_state.action_history:
-        data.append({'Time': event[3], 'Action': 1})  # Timestamp, count 1 per action
-    df = pd.DataFrame(data)
+    df = pd.DataFrame(st.session_state.action_history)
     df = df.groupby('Time').sum().reset_index()  # Aggregate counts per time
     chart = alt.Chart(df).mark_line(point=True).encode(
         x='Time:T',
         y='Action:Q',
-        tooltip=['Time', 'Action']
-    ).properties(title='Network Activity (Actions Over Time)')
+        tooltip=['Time', 'Action', 'Tx Hash']
+    ).properties(title='Network Activity (Actions Over Time with Tx Hashes)')
     st.altair_chart(chart, use_container_width=True)
+
+    # Table of recent tx
+    st.subheader("Recent Tx Hashes")
+    st.table(df[['Time', 'Tx Hash']])
+
+# Auto Refresh Thread
+def auto_refresh():
+    while st.session_state.auto_refresh:
+        fetch_action_history()
+        time.sleep(5)
+        st.rerun()
+
+if 'auto_thread' not in st.session_state:
+    st.session_state.auto_thread = None
+
+if st.button("Toggle Auto Refresh (Every 5s for Real-Time Graph)"):
+    st.session_state.auto_refresh = not st.session_state.auto_refresh
+    if st.session_state.auto_refresh:
+        st.session_state.auto_thread = threading.Thread(target=auto_refresh)
+        st.session_state.auto_thread.start()
+    else:
+        if st.session_state.auto_thread:
+            st.session_state.auto_thread.join()  # Wait for thread to stop
 
 # Main App
 st.title("Neon Cyber Overlords v1 - Testing Monad Limits")
-st.markdown("Connect, register, and perform actions against players or AI. Hacks spam tiny tMONAD to test tx throughput. Defend from simulated cyber attacks!")
+st.markdown("Connect, register, create bots with real wallets (fund via faucet), and perform actions. Hacks spam tiny tMONAD. Graph shows real-time tx from logs. Test limits with bot swarms!")
 
-# Connect Wallet Button (native Streamlit button to trigger JS)
+# Wallet Connection (native button with JS)
 if st.button("Connect Wallet"):
     st.markdown("""
         <p id="account" style="font-size: 12px; word-break: break-all;"></p>
@@ -405,6 +463,36 @@ if st.button("Connect Wallet"):
         </script>
     """, unsafe_allow_html=True)
 
+# Bot Creation
+if st.button("Create Bot (Generates Real Monad Wallet)"):
+    bot = generate_wallet()
+    st.session_state.bots.append(bot)
+    st.info(f"Bot created! Address: {bot['address']} Private Key (keep secret): {bot['private_key']}")
+    st.warning("Copy address, fund with tMONAD via faucet (e.g., faucet.monad.xyz), then use private key for bot actions below.")
+
+# List Bots
+st.subheader("Your Bots")
+for bot in st.session_state.bots:
+    st.write(f"Bot Address: {bot['address']}")
+
+# Bot Actions (use private key to sign)
+st.subheader("Bot Actions (Test Limits with Signed Tx)")
+bot_target = st.text_input("Bot Target Address for Hack")
+bot_private_key = st.text_input("Bot Private Key for Signing", type="password")
+if st.button("Bot Hack (Sign and Send from Bot)"):
+    try:
+        tx_hash = sign_and_send('hack', [bot_target], bot_private_key)
+        st.success(f"Bot hack tx sent: {tx_hash}")
+    except Exception as e:
+        st.error(f"Error: {str(e)}")
+
+# Bot Swarm Test (create and register multiple, but fund manual)
+if st.button("Create Bot Swarm (10 Bots for Limit Testing)"):
+    for _ in range(10):
+        bot = generate_wallet()
+        st.session_state.bots.append(bot)
+    st.info("10 Bots created! Fund each address via faucet, then register/activate individually.")
+
 # AI Mode Toggle
 st.session_state.ai_mode = st.checkbox("Enable AI Mode (Play Against Computer)", value=True)  # Default on for solo play
 
@@ -415,7 +503,6 @@ if st.session_state.ai_mode:
 
 # Simulated Attack Timer
 if st.session_state.ai_mode:
-    # Simulate timer with button or auto (using rerun for simplicity)
     if st.button("Simulate Incoming Attack"):
         attack_type, damage = simulate_ai_action(st.session_state.my_data)
         st.session_state.game_output.append(f"AI Attack ({attack_type})! Lost {damage} resources.")
@@ -446,7 +533,7 @@ st.caption(f"Power: {st.session_state.my_data['power']}/1000 - Reach 1000 to win
 st.subheader("Game Log")
 st.markdown('<div class="game-log">' + '<br>'.join(st.session_state.game_output) + '</div>', unsafe_allow_html=True)
 
-# Live Graph
+# Live Graph with Tx Hashes
 st.subheader("Live Blockchain Activity Graph")
 plot_activity_graph()
 
