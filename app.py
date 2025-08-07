@@ -63,7 +63,8 @@ if 'player_mon' not in st.session_state:
     st.session_state.player_power = 100
     st.session_state.crashed = False
     st.session_state.recovery_time = 5  # Reduced for better UX (simulated seconds)
-    st.session_state.game_output = ["Welcome! Start hacking or staking to build power."]
+    st.session_state.game_output = ["Welcome! Connect your wallet to Monad Testnet and start playing."]
+    st.session_state.connected = False
 
 def describe_monanimal(mon):
     name, base, eyes, acc, stats = mon
@@ -135,7 +136,7 @@ def stake_action(amount):
 
 # Main App
 st.title("Neon Cyber Overlords v1")
-st.markdown("Rule the cyber metropolis with your Monanimal NFTs on Monad. Hack, stake, and recover wisely!")
+st.markdown("Rule the cyber metropolis with your Monanimal NFTs on Monad. Connect your wallet, hack, stake, and recover wisely!")
 
 # Power Progress Bar
 st.progress(st.session_state.player_power / 1000)
@@ -172,21 +173,62 @@ else:
         st.balloons()
         st.success("You've become the ultimate Neon Cyber Overlord! Game Won!")
 
-# Sidebar for Actions
+# Sidebar for Actions and Wallet
 with st.sidebar:
-    st.header("Actions")
-    if st.button("Hack", key="hack_btn"):
-        hack_action()
-        st.rerun()
-    stake_amount = st.number_input("MON to Stake", min_value=1, max_value=st.session_state.player_mon, value=100)
-    if st.button("Stake", key="stake_btn"):
-        stake_action(stake_amount)
-        st.rerun()
-    if st.button("Reset Game", key="reset_btn"):
-        for key in list(st.session_state.keys()):
-            del st.session_state[key]
-        st.rerun()
+    st.header("Wallet & Actions")
+    # Wallet Connection HTML/JS Component
+    connect_html = """
+    <button onclick="connectWallet()" style="background-color: #00ffff; color: black; border: none; border-radius: 5px; padding: 8px 16px;">Connect Wallet</button>
+    <p id="account" style="font-size: 12px; word-break: break-all;"></p>
+    <script>
+    async function connectWallet() {
+      if (window.ethereum) {
+        try {
+          const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+          document.getElementById('account').innerHTML = 'Connected: ' + accounts[0];
+          parent.window.postMessage({type: 'wallet_connected', address: accounts[0]}, '*');  // Optional for future Python integration
+        } catch (error) {
+          console.error(error);
+        }
+      } else {
+        alert('MetaMask not detected! Install or enable it.');
+      }
+    }
+    </script>
+    """
+    st.components.v1.html(connect_html, height=100)
+    st.session_state.connected = True  # Simulate enabled for now; in v2, check via JS message
+
+    # Guide to Add Monad Testnet
+    with st.expander("Add Monad Testnet to MetaMask"):
+        st.markdown("""
+        1. Open MetaMask > Networks > Add Network.
+        2. Network Name: Monad Testnet
+        3. New RPC URL: https://testnet-rpc.monad.xyz
+        4. Chain ID: 10143
+        5. Currency Symbol: tMONAD
+        6. Block Explorer URL: https://testnet.monad.xyz/explorer
+        7. Save and switch to it, then connect above.
+        """)
+
+    if not st.session_state.connected:
+        st.info("Connect your wallet to enable actions.")
+    else:
+        st.header("Game Actions")
+        if st.button("Hack", key="hack_btn"):
+            hack_action()
+            st.rerun()
+        stake_amount = st.number_input("MON to Stake", min_value=1, max_value=st.session_state.player_mon, value=100)
+        if st.button("Stake", key="stake_btn"):
+            stake_action(stake_amount)
+            st.rerun()
 
 # Inventory Expander
 with st.expander("View Inventory"):
     st.text(display_inventory())
+
+# Reset Button
+if st.sidebar.button("Reset Game", key="reset_btn"):
+    for key in list(st.session_state.keys()):
+        del st.session_state[key]
+    st.rerun()
