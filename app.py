@@ -370,58 +370,40 @@ def plot_activity_graph():
 st.title("Neon Cyber Overlords v1 - Testing Monad Limits")
 st.markdown("Connect, register, and perform actions against players or AI. Hacks spam tiny tMONAD to test tx throughput. Defend from simulated cyber attacks!")
 
-# Wallet Connection with Improved Detection
-st.markdown("""
-    <button onclick="connectWallet()" style="background-color: #00ffff; color: black; border: none; border-radius: 5px; padding: 8px 16px;">Connect Wallet</button>
-    <p id="account" style="font-size: 12px; word-break: break-all;"></p>
-    <p id="debug" style="font-size: 12px; color: red;"></p>
-    <script>
-    async function connectWallet() {
-      console.log('Attempting connection...');
-      if (window.ethereum) {
-        console.log('ethereum object detected');
-        if (window.ethereum.isMetaMask) {
-          console.log('isMetaMask true');
-        } else {
-          console.log('isMetaMask false');
+# Connect Wallet Button (native Streamlit button to trigger JS)
+if st.button("Connect Wallet"):
+    st.markdown("""
+        <p id="account" style="font-size: 12px; word-break: break-all;"></p>
+        <p id="debug" style="font-size: 12px; color: red;"></p>
+        <script>
+        async function connectWallet() {
+          console.log('Attempting connection...');
+          if (window.ethereum) {
+            console.log('ethereum object detected');
+            if (window.ethereum.isMetaMask) {
+              console.log('isMetaMask true');
+            } else {
+              console.log('isMetaMask false');
+            }
+            try {
+              const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+              document.getElementById('account').innerHTML = 'Connected: ' + accounts[0];
+              parent.window.postMessage({type: 'wallet_connected', address: accounts[0]}, '*');
+              document.getElementById('debug').innerHTML = 'Connection successful!';
+            } catch (error) {
+              console.error(error);
+              document.getElementById('debug').innerHTML = 'Error: ' + error.message;
+              alert('Connection failed: ' + error.message + '. Check console for details.');
+            }
+          } else {
+            console.log('ethereum object not found');
+            document.getElementById('debug').innerHTML = 'MetaMask not detected. Check extensions and reload.';
+            alert('MetaMask not detected! Ensure it\'s enabled and reload the page.');
+          }
         }
-        try {
-          const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-          document.getElementById('account').innerHTML = 'Connected: ' + accounts[0];
-          parent.window.postMessage({type: 'wallet_connected', address: accounts[0]}, '*');
-          document.getElementById('debug').innerHTML = 'Connection successful!';
-        } catch (error) {
-          console.error(error);
-          document.getElementById('debug').innerHTML = 'Error: ' + error.message;
-          alert('Connection failed: ' + error.message + '. Check console for details.');
-        }
-      } else {
-        console.log('ethereum object not found');
-        document.getElementById('debug').innerHTML = 'MetaMask not detected. Check extensions and reload.';
-        alert('MetaMask not detected! Ensure it\'s enabled and reload the page.');
-      }
-    }
-    setTimeout(() {
-      if (window.ethereum) console.log('Delayed check: ethereum detected'); else console.log('Delayed check: not detected');
-    }, 1000); // Delay for load timing
-    let web3 = new Web3(window.ethereum);
-    const contractAddress = '%s';
-    const abi = %s;
-    window.addEventListener('message', async (event) => {
-      if (event.data.type === 'perform_action') {
-        const { method, params } = event.data;
-        try {
-          const contract = new web3.eth.Contract(abi, contractAddress);
-          const tx = await contract.methods[method](...params).send({from: window.ethereum.selectedAddress});
-          console.log('Tx hash:', tx.transactionHash);
-        } catch (error) {
-          console.error(error);
-          alert('Action failed: ' + error.message);
-        }
-      }
-    });
-    </script>
-""" % (CONTRACT_ADDRESS, ABI), unsafe_allow_html=True)
+        connectWallet();  // Auto-call on button click
+        </script>
+    """, unsafe_allow_html=True)
 
 # AI Mode Toggle
 st.session_state.ai_mode = st.checkbox("Enable AI Mode (Play Against Computer)", value=True)  # Default on for solo play
@@ -480,7 +462,9 @@ if st.session_state.ai_mode:
 with st.sidebar:
     st.header("Actions")
     if st.button("Register"):
-        st.markdown("""<script>parent.window.postMessage({type: 'perform_action', method: 'register', params: []}, '*');</script>""", unsafe_allow_html=True)
+        st.markdown("""
+            <script>parent.window.postMessage({type: 'perform_action', method: 'register', params: []}, '*');</script>
+        """, unsafe_allow_html=True)
     target_options = st.session_state.players + [ai['address'] for ai in st.session_state.ai_opponents] if st.session_state.ai_mode else st.session_state.players
     target = st.selectbox("Select Target", target_options)
     if st.button("Hack (Spam Tiny tMONAD)"):
@@ -488,21 +472,29 @@ with st.sidebar:
             st.session_state.my_data["power"] += 10
             st.session_state.game_output.append(f"Simulated Hack on AI {target}! Gained 10 power.")
         else:
-            st.markdown("""<script>parent.window.postMessage({type: 'perform_action', method: 'hack', params: ['%s']}, '*');</script>""" % target, unsafe_allow_html=True)
+            st.markdown("""
+                <script>parent.window.postMessage({type: 'perform_action', method: 'hack', params: ['%s']}, '*');</script>
+            """ % target, unsafe_allow_html=True)
     if st.button("Injection"):
         if 'AI' in target:
             st.session_state.my_data["power"] += 20
             st.session_state.game_output.append(f"Simulated Injection on AI {target}! Gained 20 power.")
         else:
-            st.markdown("""<script>parent.window.postMessage({type: 'perform_action', method: 'injection', params: ['%s']}, '*');</script>""" % target, unsafe_allow_html=True)
+            st.markdown("""
+                <script>parent.window.postMessage({type: 'perform_action', method: 'injection', params: ['%s']}, '*');</script>
+            """ % target, unsafe_allow_html=True)
     if st.button("Phishing"):
         if 'AI' in target:
             st.session_state.my_data["mon"] += 50
             st.session_state.game_output.append(f"Simulated Phishing on AI {target}! Gained 50 MON.")
         else:
-            st.markdown("""<script>parent.window.postMessage({type: 'perform_action', method: 'phishing', params: ['%s']}, '*');</script>""" % target, unsafe_allow_html=True)
+            st.markdown("""
+                <script>parent.window.postMessage({type: 'perform_action', method: 'phishing', params: ['%s']}, '*');</script>
+            """ % target, unsafe_allow_html=True)
     if st.button("Deploy Bot"):
-        st.markdown("""<script>parent.window.postMessage({type: 'perform_action', method: 'deployBot', params: []}, '*');</script>""", unsafe_allow_html=True)
+        st.markdown("""
+            <script>parent.window.postMessage({type: 'perform_action', method: 'deployBot', params: []}, '*');</script>
+        """, unsafe_allow_html=True)
     if st.session_state.ai_mode:
         if st.button("Defend from AI Attack"):
             defend_simulation()
