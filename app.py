@@ -48,7 +48,7 @@ w3 = Web3(Web3.HTTPProvider(RPC_URL))
 # Contract address (provided by user)
 CONTRACT_ADDRESS = '0x24c97ccB47ee7b041E581AE49dE1535A85835B70'
 
-# ABI (provided by user, corrected false to False)
+# ABI (provided by user, corrected booleans to Python False/True)
 ABI = [
   {
     "anonymous": False,
@@ -371,7 +371,7 @@ st.title("Neon Cyber Overlords v1 - Testing Monad Limits")
 st.markdown("Connect, register, and perform actions against players or AI. Hacks spam tiny tMONAD to test tx throughput. Defend from simulated cyber attacks!")
 
 # Wallet Connection with Improved Detection
-st.components.v1.html("""
+st.markdown("""
     <button onclick="connectWallet()" style="background-color: #00ffff; color: black; border: none; border-radius: 5px; padding: 8px 16px;">Connect Wallet</button>
     <p id="account" style="font-size: 12px; word-break: break-all;"></p>
     <p id="debug" style="font-size: 12px; color: red;"></p>
@@ -401,7 +401,7 @@ st.components.v1.html("""
         alert('MetaMask not detected! Ensure it\'s enabled and reload the page.');
       }
     }
-    setTimeout(() => {
+    setTimeout(() {
       if (window.ethereum) console.log('Delayed check: ethereum detected'); else console.log('Delayed check: not detected');
     }, 1000); // Delay for load timing
     let web3 = new Web3(window.ethereum);
@@ -421,7 +421,7 @@ st.components.v1.html("""
       }
     });
     </script>
-""" % (CONTRACT_ADDRESS, ABI), height=200)
+""" % (CONTRACT_ADDRESS, ABI), unsafe_allow_html=True)
 
 # AI Mode Toggle
 st.session_state.ai_mode = st.checkbox("Enable AI Mode (Play Against Computer)", value=True)  # Default on for solo play
@@ -480,7 +480,7 @@ if st.session_state.ai_mode:
 with st.sidebar:
     st.header("Actions")
     if st.button("Register"):
-        st.components.v1.html("""<script>parent.window.postMessage({type: 'perform_action', method: 'register', params: []}, '*');</script>""", height=0)
+        st.markdown("""<script>parent.window.postMessage({type: 'perform_action', method: 'register', params: []}, '*');</script>""", unsafe_allow_html=True)
     target_options = st.session_state.players + [ai['address'] for ai in st.session_state.ai_opponents] if st.session_state.ai_mode else st.session_state.players
     target = st.selectbox("Select Target", target_options)
     if st.button("Hack (Spam Tiny tMONAD)"):
@@ -488,21 +488,21 @@ with st.sidebar:
             st.session_state.my_data["power"] += 10
             st.session_state.game_output.append(f"Simulated Hack on AI {target}! Gained 10 power.")
         else:
-            st.components.v1.html("""<script>parent.window.postMessage({type: 'perform_action', method: 'hack', params: ['%s']}, '*');</script>""" % target, height=0)
+            st.markdown("""<script>parent.window.postMessage({type: 'perform_action', method: 'hack', params: ['%s']}, '*');</script>""" % target, unsafe_allow_html=True)
     if st.button("Injection"):
         if 'AI' in target:
             st.session_state.my_data["power"] += 20
             st.session_state.game_output.append(f"Simulated Injection on AI {target}! Gained 20 power.")
         else:
-            st.components.v1.html("""<script>parent.window.postMessage({type: 'perform_action', method: 'injection', params: ['%s']}, '*');</script>""" % target, height=0)
+            st.markdown("""<script>parent.window.postMessage({type: 'perform_action', method: 'injection', params: ['%s']}, '*');</script>""" % target, unsafe_allow_html=True)
     if st.button("Phishing"):
         if 'AI' in target:
             st.session_state.my_data["mon"] += 50
             st.session_state.game_output.append(f"Simulated Phishing on AI {target}! Gained 50 MON.")
         else:
-            st.components.v1.html("""<script>parent.window.postMessage({type: 'perform_action', method: 'phishing', params: ['%s']}, '*');</script>""" % target, height=0)
+            st.markdown("""<script>parent.window.postMessage({type: 'perform_action', method: 'phishing', params: ['%s']}, '*');</script>""" % target, unsafe_allow_html=True)
     if st.button("Deploy Bot"):
-        st.components.v1.html("""<script>parent.window.postMessage({type: 'perform_action', method: 'deployBot', params: []}, '*');</script>""", height=0)
+        st.markdown("""<script>parent.window.postMessage({type: 'perform_action', method: 'deployBot', params: []}, '*');</script>""", unsafe_allow_html=True)
     if st.session_state.ai_mode:
         if st.button("Defend from AI Attack"):
             defend_simulation()
