@@ -43,7 +43,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Monad Testnet RPC (provided by user)
+# Monad Testnet RPC (Alchemy URL provided by user)
 RPC_URL = 'https://monad-testnet.g.alchemy.com/v2/kgLrnOrgMfbKihXEBsjt9'
 w3 = Web3(Web3.HTTPProvider(RPC_URL))
 
@@ -52,244 +52,18 @@ CONTRACT_ADDRESS = '0x24c97ccB47ee7b041E581AE49dE1535A85835B70'
 
 # ABI (provided by user)
 ABI = [
-  {
-    "anonymous": False,
-    "inputs": [
-      {
-        "indexed": True,
-        "internalType": "address",
-        "name": "from",
-        "type": "address"
-      },
-      {
-        "indexed": True,
-        "internalType": "address",
-        "name": "to",
-        "type": "address"
-      },
-      {
-        "indexed": False,
-        "internalType": "string",
-        "name": "action",
-        "type": "string"
-      },
-      {
-        "indexed": False,
-        "internalType": "uint256",
-        "name": "timestamp",
-        "type": "uint256"
-      }
-    ],
-    "name": "ActionPerformed",
-    "type": "event"
-  },
-  {
-    "inputs": [],
-    "name": "deployBot",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "target",
-        "type": "address"
-      }
-    ],
-    "name": "hack",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "target",
-        "type": "address"
-      }
-    ],
-    "name": "injection",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "target",
-        "type": "address"
-      }
-    ],
-    "name": "phishing",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "register",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "actionHistory",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "from",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "to",
-        "type": "address"
-      },
-      {
-        "internalType": "string",
-        "name": "action",
-        "type": "string"
-      },
-      {
-        "internalType": "uint256",
-        "name": "timestamp",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getActionHistory",
-    "outputs": [
-      {
-        "components": [
-          {
-            "internalType": "address",
-            "name": "from",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "to",
-            "type": "address"
-          },
-          {
-            "internalType": "string",
-            "name": "action",
-            "type": "string"
-          },
-          {
-            "internalType": "uint256",
-            "name": "timestamp",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct CyberOverlords.ActionEvent[]",
-        "name": "",
-        "type": "tuple[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "addr",
-        "type": "address"
-      }
-    ],
-    "name": "getPlayer",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "mon",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "power",
-        "type": "uint256"
-      },
-      {
-        "internalType": "string[]",
-        "name": "nfts",
-        "type": "string[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getPlayers",
-    "outputs": [
-      {
-        "internalType": "address[]",
-        "name": "",
-        "type": "address[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "playerList",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "players",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "mon",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "power",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  }
+    {"anonymous": false, "inputs": [{"indexed": true, "internalType": "address", "name": "from", "type": "address"}, {"indexed": true, "internalType": "address", "name": "to", "type": "address"}, {"indexed": false, "internalType": "string", "name": "action", "type": "string"}, {"indexed": false, "internalType": "uint256", "name": "timestamp", "type": "uint256"}], "name": "ActionPerformed", "type": "event"},
+    {"inputs": [], "name": "deployBot", "outputs": [], "stateMutability": "nonpayable", "type": "function"},
+    {"inputs": [{"internalType": "address", "name": "target", "type": "address"}], "name": "hack", "outputs": [], "stateMutability": "nonpayable", "type": "function"},
+    {"inputs": [{"internalType": "address", "name": "target", "type": "address"}], "name": "injection", "outputs": [], "stateMutability": "nonpayable", "type": "function"},
+    {"inputs": [{"internalType": "address", "name": "target", "type": "address"}], "name": "phishing", "outputs": [], "stateMutability": "nonpayable", "type": "function"},
+    {"inputs": [], "name": "register", "outputs": [], "stateMutability": "nonpayable", "type": "function"},
+    {"inputs": [{"internalType": "uint256", "name": "", "type": "uint256"}], "name": "actionHistory", "outputs": [{"internalType": "address", "name": "from", "type": "address"}, {"internalType": "address", "name": "to", "type": "address"}, {"internalType": "string", "name": "action", "type": "string"}, {"internalType": "uint256", "name": "timestamp", "type": "uint256"}], "stateMutability": "view", "type": "function"},
+    {"inputs": [], "name": "getActionHistory", "outputs": [{"components": [{"internalType": "address", "name": "from", "type": "address"}, {"internalType": "address", "name": "to", "type": "address"}, {"internalType": "string", "name": "action", "type": "string"}, {"internalType": "uint256", "name": "timestamp", "type": "uint256"}], "internalType": "struct CyberOverlords.ActionEvent[]", "name": "", "type": "tuple[]"}], "stateMutability": "view", "type": "function"},
+    {"inputs": [{"internalType": "address", "name": "addr", "type": "address"}], "name": "getPlayer", "outputs": [{"internalType": "uint256", "name": "mon", "type": "uint256"}, {"internalType": "uint256", "name": "power", "type": "uint256"}, {"internalType": "string[]", "name": "nfts", "type": "string[]"}], "stateMutability": "view", "type": "function"},
+    {"inputs": [], "name": "getPlayers", "outputs": [{"internalType": "address[]", "name": "", "type": "address[]"}], "stateMutability": "view", "type": "function"},
+    {"inputs": [{"internalType": "uint256", "name": "", "type": "uint256"}], "name": "playerList", "outputs": [{"internalType": "address", "name": "", "type": "address"}], "stateMutability": "view", "type": "function"},
+    {"inputs": [{"internalType": "address", "name": "", "type": "address"}], "name": "players", "outputs": [{"internalType": "uint256", "name": "mon", "type": "uint256"}, {"internalType": "uint256", "name": "power", "type": "uint256"}], "stateMutability": "view", "type": "function"}
 ]
 
 contract = w3.eth.contract(address=CONTRACT_ADDRESS, abi=ABI)
@@ -301,7 +75,36 @@ if 'game_output' not in st.session_state:
     st.session_state.players = []
     st.session_state.my_data = {"mon": 0, "power": 0, "nfts": []}
     st.session_state.action_history = []
+    st.session_state.ai_mode = False
+    st.session_state.ai_opponents = []  # For AI mode
+    st.session_state.attack_timer = 0  # For simulated attacks
 
+# AI Mode Functions
+def generate_ai_opponent():
+    ai_address = f"AI_{random.randint(1000, 9999)}"  # Fake address
+    ai_data = {"mon": random.randint(500, 1500), "power": random.randint(50, 200)}
+    return {"address": ai_address, "data": ai_data}
+
+def simulate_ai_action(user_data):
+    # AI "attacks" user
+    attack_type = random.choice(["hack", "injection", "phishing"])
+    damage = random.randint(10, 50)
+    if attack_type == "hack":
+        user_data["mon"] -= damage
+    elif attack_type == "injection":
+        user_data["power"] -= damage
+    else:
+        user_data["mon"] -= damage / 2
+        user_data["power"] -= damage / 2
+    return attack_type, damage
+
+def defend_simulation():
+    # User "defends" by boosting power
+    boost = random.randint(20, 60)
+    st.session_state.my_data["power"] += boost
+    st.session_state.game_output.append(f"Defended successfully! Gained {boost} power.")
+
+# Fetch Functions
 def fetch_players():
     try:
         st.session_state.players = contract.functions.getPlayers().call()
@@ -341,27 +144,42 @@ def plot_activity_graph():
 
 # Main App
 st.title("Neon Cyber Overlords v1 - Testing Monad Limits")
-st.markdown("Connect, register, and perform actions against players. Hacks spam tiny tMONAD to test tx throughput. Push Monad's limits with frequent actions, queries, and multiplayer interactions!")
+st.markdown("Connect, register, and perform actions against players or AI. Hacks spam tiny tMONAD to test tx throughput. Defend from simulated cyber attacks!")
 
-# Wallet Connection
+# Wallet Connection with Improved Detection
 st.components.v1.html("""
     <button onclick="connectWallet()" style="background-color: #00ffff; color: black; border: none; border-radius: 5px; padding: 8px 16px;">Connect Wallet</button>
     <p id="account" style="font-size: 12px; word-break: break-all;"></p>
+    <p id="debug" style="font-size: 12px; color: red;"></p>
     <script>
     async function connectWallet() {
+      console.log('Attempting connection...');
       if (window.ethereum) {
+        console.log('ethereum object detected');
+        if (window.ethereum.isMetaMask) {
+          console.log('isMetaMask true');
+        } else {
+          console.log('isMetaMask false');
+        }
         try {
-          const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+          const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
           document.getElementById('account').innerHTML = 'Connected: ' + accounts[0];
           parent.window.postMessage({type: 'wallet_connected', address: accounts[0]}, '*');
+          document.getElementById('debug').innerHTML = 'Connection successful!';
         } catch (error) {
           console.error(error);
-          alert('Connection failed: ' + error.message);
+          document.getElementById('debug').innerHTML = 'Error: ' + error.message;
+          alert('Connection failed: ' + error.message + '. Check console for details.');
         }
       } else {
-        alert('MetaMask not detected! Install from metamask.io or enable extension.');
+        console.log('ethereum object not found');
+        document.getElementById('debug').innerHTML = 'MetaMask not detected. Check extensions and reload.';
+        alert('MetaMask not detected! Ensure it\'s enabled and reload the page.');
       }
     }
+    setTimeout(() => {
+      if (window.ethereum) console.log('Delayed check: ethereum detected'); else console.log('Delayed check: not detected');
+    }, 1000); // Delay for load timing
     let web3 = new Web3(window.ethereum);
     const contractAddress = '%s';
     const abi = %s;
@@ -370,7 +188,7 @@ st.components.v1.html("""
         const { method, params } = event.data;
         try {
           const contract = new web3.eth.Contract(abi, contractAddress);
-          const tx = await contract.methods[method](...params).send({from: ethereum.selectedAddress});
+          const tx = await contract.methods[method](...params).send({from: window.ethereum.selectedAddress});
           console.log('Tx hash:', tx.transactionHash);
         } catch (error) {
           console.error(error);
@@ -379,15 +197,26 @@ st.components.v1.html("""
       }
     });
     </script>
-""" % (CONTRACT_ADDRESS, ABI), height=150)
+""" % (CONTRACT_ADDRESS, ABI), height=200)
 
-# Listen for connection (set address)
-connected_address = st.text_input("Enter your connected address (for testing):", value=st.session_state.connected_address or "")
-if connected_address:
-    st.session_state.connected_address = connected_address
+# AI Mode Toggle
+st.session_state.ai_mode = st.checkbox("Enable AI Mode (Play Against Computer)")
 
-# Refresh Button to test query limits
-if st.button("Refresh Game (Test Query Load)"):
+if st.session_state.ai_mode:
+    if not st.session_state.ai_opponents:
+        st.session_state.ai_opponents = [generate_ai_opponent() for _ in range(3)]  # 3 AI opponents
+    st.info("AI Mode Enabled: Interact with computer opponents. Simulate defenses from cyber attacks.")
+
+# Simulated Attack Timer
+if st.session_state.ai_mode:
+    st.session_state.attack_timer += 1
+    if st.session_state.attack_timer % 30 == 0:  # Every 30 seconds (approx, since rerun)
+        attack_type, damage = simulate_ai_action(st.session_state.my_data)
+        st.session_state.game_output.append(f"AI Attack ({attack_type})! Lost {damage} resources.")
+        st.error("Cyber Attack Simulated! Defend now.")
+
+# Refresh Button
+if st.button("Refresh Game"):
     fetch_players()
     fetch_my_data()
     fetch_action_history()
@@ -403,51 +232,64 @@ with st.expander("Monad Testnet Setup"):
     Get test tMONAD from faucet if needed.
     """)
 
-# Power Progress (test UI updates)
+# Power Progress
 st.progress(st.session_state.my_data["power"] / 1000)
 st.caption(f"Power: {st.session_state.my_data['power']}/1000 - Reach 1000 to win!")
 
-# Game Log (test frequent updates)
+# Game Log
 st.subheader("Game Log")
 st.markdown('<div class="game-log">' + '<br>'.join(st.session_state.game_output) + '</div>', unsafe_allow_html=True)
 
-# Live Graph (test data fetching/processing limits)
-st.subheader("Live Blockchain Activity Graph (Test Query/Render Load)")
+# Live Graph
+st.subheader("Live Blockchain Activity Graph")
 plot_activity_graph()
 
-# Players List (test list fetching)
-st.subheader("Online Players (Test Multiplayer Scale)")
+# Players/AI
+st.subheader("Online Players / AI Opponents")
 for p in st.session_state.players:
     st.write(p)
+if st.session_state.ai_mode:
+    for ai in st.session_state.ai_opponents:
+        st.write(f"{ai['address']} (AI) - Power: {ai['data']['power']}")
 
-# Actions Sidebar (test tx limits with spam)
+# Actions Sidebar
 with st.sidebar:
-    st.header("Actions (Push Tx Limits)")
-    if st.button("Register (One-Time)"):
+    st.header("Actions")
+    if st.button("Register"):
         st.components.v1.html("""<script>parent.window.postMessage({type: 'perform_action', method: 'register', params: []}, '*');</script>""", height=0)
-        st.info("Registration tx sent - check explorer for confirmation.")
-    target = st.selectbox("Select Target (for Attacks)", st.session_state.players)
-    if st.button("Hack (Spam Tiny tMONAD to Test Throughput)"):
-        st.components.v1.html("""<script>parent.window.postMessage({type: 'perform_action', method: 'hack', params: ['%s']}, '*');</script>""" % target, height=0)
-        st.info("Hack tx sent - spams to test Monad TPS!")
-    if st.button("Injection (Power Steal)"):
-        st.components.v1.html("""<script>parent.window.postMessage({type: 'perform_action', method: 'injection', params: ['%s']}, '*');</script>""" % target, height=0)
-    if st.button("Phishing (MON Steal)"):
-        st.components.v1.html("""<script>parent.window.postMessage({type: 'perform_action', method: 'phishing', params: ['%s']}, '*');</script>""" % target, height=0)
-    if st.button("Deploy Bot (Power Boost)"):
+    target_options = st.session_state.players + [ai['address'] for ai in st.session_state.ai_opponents] if st.session_state.ai_mode else st.session_state.players
+    target = st.selectbox("Select Target", target_options)
+    if st.button("Hack (Spam Tiny tMONAD)"):
+        if 'AI' in target:
+            # Simulate AI hack
+            st.session_state.my_data["power"] += 10
+            st.session_state.game_output.append(f"Simulated Hack on AI {target}! Gained 10 power.")
+        else:
+            st.components.v1.html("""<script>parent.window.postMessage({type: 'perform_action', method: 'hack', params: ['%s']}, '*');</script>""" % target, height=0)
+    if st.button("Injection"):
+        if 'AI' in target:
+            st.session_state.my_data["power"] += 20
+            st.session_state.game_output.append(f"Simulated Injection on AI {target}! Gained 20 power.")
+        else:
+            st.components.v1.html("""<script>parent.window.postMessage({type: 'perform_action', method: 'injection', params: ['%s']}, '*');</script>""" % target, height=0)
+    if st.button("Phishing"):
+        if 'AI' in target:
+            st.session_state.my_data["mon"] += 50
+            st.session_state.game_output.append(f"Simulated Phishing on AI {target}! Gained 50 MON.")
+        else:
+            st.components.v1.html("""<script>parent.window.postMessage({type: 'perform_action', method: 'phishing', params: ['%s']}, '*');</script>""" % target, height=0)
+    if st.button("Deploy Bot"):
         st.components.v1.html("""<script>parent.window.postMessage({type: 'perform_action', method: 'deployBot', params: []}, '*');</script>""", height=0)
+    if st.session_state.ai_mode:
+        if st.button("Defend from AI Attack"):
+            defend_simulation()
 
-# Inventory (test data display)
+# Inventory
 with st.expander("Your Inventory"):
     st.json(st.session_state.my_data)
 
-# Win Check
-if st.session_state.my_data["power"] >= 1000:
-    st.balloons()
-    st.success("You've become the ultimate Neon Cyber Overlord! Game Won!")
-
-# Leaderboard to add excitement (test sorting/large lists)
-st.subheader("Leaderboard (Test Data Processing)")
+# Leaderboard
+st.subheader("Leaderboard")
 leaderboard = []
 for p in st.session_state.players:
     try:
@@ -455,13 +297,14 @@ for p in st.session_state.players:
         leaderboard.append({"Player": p, "Power": power})
     except:
         pass
-leaderboard_df = pd.DataFrame(leaderboard).sort_values("Power", ascending=False)
-st.dataframe(leaderboard_df)
+if st.session_state.ai_mode:
+    for ai in st.session_state.ai_opponents:
+        leaderboard.append({"Player": ai['address'] + " (AI)", "Power": ai['data']['power']})
+if leaderboard:
+    leaderboard_df = pd.DataFrame(leaderboard).sort_values("Power", ascending=False)
+    st.dataframe(leaderboard_df)
+else:
+    st.info("No players or AI yet.")
 
-# Fun Element: Spam Test Button (to push Monad limits)
-if st.button("Stress Test: Perform 10 Hacks in Loop (WARNING: Costs MON, Tests TPS)"):
-    st.warning("This will send 10 hack tx in sequence - monitor explorer for Monad performance!")
-    for _ in range(10):
-        random_target = random.choice(st.session_state.players) if st.session_state.players else st.session_state.connected_address
-        st.components.v1.html("""<script>parent.window.postMessage({type: 'perform_action', method: 'hack', params: ['%s']}, '*');</script>""" % random_target, height=0)
-        time.sleep(1)  # Slight delay to avoid instant rejection
+if st.session_state.my_data["power"] >= 1000:
+    st.success("You win!")
