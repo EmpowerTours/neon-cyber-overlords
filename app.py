@@ -334,11 +334,13 @@ def sign_and_send(method, params, private_key):
     tx_hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
     return tx_hash.hex()
 
-# AI Mode Functions (slightly updated for bot integration if funded)
+# AI Mode Functions
 def generate_ai_opponent():
-    ai_address = f"AI_{random.randint(1000, 9999)}"  # Fake address for simulation
+    bot = generate_wallet()  # Real wallet for bot
+    st.session_state.bots.append(bot)
     ai_data = {"mon": random.randint(500, 1500), "power": random.randint(50, 200)}
-    return {"address": ai_address, "data": ai_data}
+    st.info(f"AI Bot created! Address: {bot['address']} Private Key: {bot['private_key']}. Fund with tMONAD to activate real tx.")
+    return {"address": bot['address'], "data": ai_data, "private_key": bot['private_key']}
 
 def simulate_ai_action(user_data):
     attack_type = random.choice(["hack", "injection", "phishing"])
@@ -357,7 +359,7 @@ def defend_simulation():
     st.session_state.my_data["power"] += boost
     st.session_state.game_output.append(f"Defended successfully! Gained {boost} power.")
 
-# Fetch Functions (updated for real-time logs with tx hashes)
+# Fetch Functions
 def fetch_players():
     try:
         st.session_state.players = contract.functions.getPlayers().call()
@@ -498,7 +500,7 @@ st.session_state.ai_mode = st.checkbox("Enable AI Mode (Play Against Computer)",
 
 if st.session_state.ai_mode:
     if not st.session_state.ai_opponents:
-        st.session_state.ai_opponents = [generate_ai_opponent() for _ in range(3)]  # 3 AI opponents
+        st.session_state.ai_opponents = [generate_ai_opponent() for _ in range(3)]  # 3 AI opponents with real wallets
     st.info("AI Mode Enabled: Interact with computer opponents. Simulate defenses from cyber attacks.")
 
 # Simulated Attack Timer
