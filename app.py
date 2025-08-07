@@ -1,6 +1,11 @@
+# app.py
+
 import streamlit as st
 import random
 import time
+from web3 import Web3
+import altair as alt
+import pandas as pd
 
 # Custom CSS for clean, neon-themed UI
 st.markdown("""
@@ -38,146 +43,308 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Monanimals list (text-based)
-monanimals = [
-    ("VoidDrake", "Deep purple scales", "Glowing red eyes", "Golden circuits", "Level: 1, Bonus: 15% NFT Liquidation Resistance"),
-    ("Molandak", "Vibrant green hide", "Pitch black eyes", "Golden circuits", "Level: 1, Bonus: 5% Stake APY Boost"),
-    ("Chog", "Earthy brown fur", "Pitch black eyes", "Golden circuits", "Level: 1, Bonus: 8% Pool Contribution Yield"),
-    ("Moyaki", "Electric blue skin", "Bright white eyes", "Golden circuits", "Level: 1, Bonus: 7% Burn Token Efficiency"),
-    ("Mouch", "Sleek gray armor", "Pitch black eyes", "Golden circuits", "Level: 1, Bonus: 6% NFT Yield Farming"),
-    ("Salmonad", "Soft pink glow", "Pitch black eyes", "Golden circuits", "Level: 1, Bonus: 9% DAO Governance Power"),
-    ("Purple Frens", "Vivid purple aura", "Bright white eyes", "Golden circuits", "Level: 1, Bonus: 4% Alliance NFT Sharing"),
-    ("Monad Nomads", "Sunny yellow nomadic form", "Pitch black eyes", "Golden circuits", "Level: 1, Bonus: 5% Oracle Recovery Speed"),
-    ("Skrumpeys", "Fiery orange spikes", "Pitch black eyes", "Golden circuits", "Level: 1, Bonus: 6% Bridge NFT Security"),
-    ("Spikynads", "Crimson red thorns", "Bright white eyes", "Golden circuits", "Level: 1, Bonus: 7% Mint NFT Speed"),
-    ("The Boo DAO", "Shadowy black void", "Glowing red eyes", "Golden circuits", "Level: 1, Bonus: 8% Airdrop NFT Chance"),
-    ("BlockNads", "Deep blue blocks", "Bright white eyes", "Golden circuits", "Level: 1, Bonus: 9% Wallet NFT Balance"),
-    ("Monadians", "Lush green essence", "Pitch black eyes", "Golden circuits", "Level: 1, Bonus: 10% Swap Fee Reduction"),
-    ("Monega", "Cyan energy waves", "Magenta eyes", "Golden circuits", "Level: 1, Bonus: 12% Recovery Time Reduction")
+# Monad Testnet RPC (provided by user)
+RPC_URL = 'https://monad-testnet.g.alchemy.com/v2/kgLrnOrgMfbKihXEBsjt9'
+w3 = Web3(Web3.HTTPProvider(RPC_URL))
+
+# Contract address (provided by user)
+CONTRACT_ADDRESS = '0x24c97ccB47ee7b041E581AE49dE1535A85835B70'
+
+# ABI (provided by user)
+ABI = [
+  {
+    "anonymous": False,
+    "inputs": [
+      {
+        "indexed": True,
+        "internalType": "address",
+        "name": "from",
+        "type": "address"
+      },
+      {
+        "indexed": True,
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "indexed": False,
+        "internalType": "string",
+        "name": "action",
+        "type": "string"
+      },
+      {
+        "indexed": False,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "ActionPerformed",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "deployBot",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "target",
+        "type": "address"
+      }
+    ],
+    "name": "hack",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "target",
+        "type": "address"
+      }
+    ],
+    "name": "injection",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "target",
+        "type": "address"
+      }
+    ],
+    "name": "phishing",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "register",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "actionHistory",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "from",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "action",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getActionHistory",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "from",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "internalType": "string",
+            "name": "action",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "timestamp",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct CyberOverlords.ActionEvent[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "addr",
+        "type": "address"
+      }
+    ],
+    "name": "getPlayer",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "mon",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "power",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string[]",
+        "name": "nfts",
+        "type": "string[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getPlayers",
+    "outputs": [
+      {
+        "internalType": "address[]",
+        "name": "",
+        "type": "address[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "playerList",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "players",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "mon",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "power",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
 ]
 
-# Initialize session state
-if 'player_mon' not in st.session_state:
-    st.session_state.player_mon = 1000
-    st.session_state.player_nfts = random.sample(monanimals, 3)
-    st.session_state.player_power = 100
-    st.session_state.crashed = False
-    st.session_state.recovery_time = 5  # Reduced for better UX (simulated seconds)
-    st.session_state.game_output = ["Welcome! Connect your wallet to Monad Testnet and start playing."]
-    st.session_state.connected = False
+contract = w3.eth.contract(address=CONTRACT_ADDRESS, abi=ABI)
 
-def describe_monanimal(mon):
-    name, base, eyes, acc, stats = mon
-    return f"{name}: A fierce cyber beast with {base}, {eyes}, and {acc}. Stats: {stats}"
+# Session state
+if 'game_output' not in st.session_state:
+    st.session_state.game_output = ["Connect wallet to start."]
+    st.session_state.connected_address = None
+    st.session_state.players = []
+    st.session_state.my_data = {"mon": 0, "power": 0, "nfts": []}
+    st.session_state.action_history = []
 
-def display_inventory():
-    output = [
-        f"MON Tokens: {st.session_state.player_mon}",
-        f"Power Level: {st.session_state.player_power}",
-        "Monanimal NFTs:"
-    ]
-    for mon in st.session_state.player_nfts:
-        output.append(f"- {describe_monanimal(mon)}")
-    return "\n".join(output)
+def fetch_players():
+    try:
+        st.session_state.players = contract.functions.getPlayers().call()
+    except Exception as e:
+        st.error(f"Error fetching players: {str(e)}")
 
-def simulate_transaction(action):
-    st.info(f"Simulating Monad transaction for {action}...")
-    if st.sidebar.button("Sign Transaction", key=f"sign_{action}"):
-        st.success("Transaction signed and confirmed!")
-        return True
-    return False
+def fetch_my_data():
+    if st.session_state.connected_address:
+        try:
+            mon, power, nfts = contract.functions.getPlayer(st.session_state.connected_address).call()
+            st.session_state.my_data = {"mon": mon, "power": power, "nfts": nfts}
+        except Exception as e:
+            st.error(f"Error fetching your data: {str(e)}")
 
-def hack_action():
-    target = random.choice(["Low-Security Node", "High-Risk Vault", "Rival Overlord"])
-    st.session_state.game_output.append(f"Hacking {target}...")
-    success_chance = 50 + (st.session_state.player_power // 10)
-    if random.randint(1, 100) <= success_chance:
-        reward = random.randint(100, 500)
-        st.session_state.player_mon += reward
-        st.session_state.player_power += 10
-        st.session_state.game_output.append(f"Success! Gained {reward} MON and 10 power.")
-        st.success("Hack successful!")
-    else:
-        st.session_state.game_output.append("Hack failed! System crashing...")
-        st.session_state.crashed = True
-        st.error("System crashed!")
+def fetch_action_history():
+    try:
+        history = contract.functions.getActionHistory().call()
+        st.session_state.action_history = history
+    except Exception as e:
+        st.error(f"Error fetching history: {str(e)}")
 
-def recover_from_crash():
-    if simulate_transaction("system recovery"):
-        cost = 200
-        if st.session_state.player_mon >= cost:
-            st.session_state.player_mon -= cost
-            st.session_state.game_output.append(f"Invested {cost} MON from liquidity pool.")
-            with st.spinner("Recovering system..."):
-                time.sleep(st.session_state.recovery_time)
-            st.session_state.crashed = False
-            st.session_state.game_output.append("System rebuilt! Back online.")
-            st.success("Recovery complete!")
-        else:
-            st.session_state.game_output.append("Insufficient MON! Liquidating an NFT...")
-            if st.session_state.player_nfts:
-                liquidated = st.session_state.player_nfts.pop(random.randint(0, len(st.session_state.player_nfts)-1))
-                st.session_state.player_mon += 300
-                st.session_state.game_output.append(f"Liquidated {liquidated[0]} for 300 MON.")
-                st.warning("NFT liquidated.")
-            else:
-                st.session_state.game_output.append("No NFTs to liquidate. Game over!")
-                st.error("Game over!")
-                return True
-    return False
-
-def stake_action(amount):
-    if amount > 0 and amount <= st.session_state.player_mon and simulate_transaction("staking"):
-        st.session_state.player_mon -= amount
-        yield_bonus = amount // 10
-        st.session_state.player_power += yield_bonus
-        st.session_state.game_output.append(f"Staked {amount} MON. Gained {yield_bonus} power yield.")
-        st.success("Stake successful!")
+def plot_activity_graph():
+    if not st.session_state.action_history:
+        st.info("No activities yet.")
+        return
+    data = []
+    for event in st.session_state.action_history:
+        data.append({'Time': event[3], 'Action': 1})  # Timestamp, count 1 per action
+    df = pd.DataFrame(data)
+    df = df.groupby('Time').sum().reset_index()  # Aggregate counts per time
+    chart = alt.Chart(df).mark_line(point=True).encode(
+        x='Time:T',
+        y='Action:Q',
+        tooltip=['Time', 'Action']
+    ).properties(title='Network Activity (Actions Over Time)')
+    st.altair_chart(chart, use_container_width=True)
 
 # Main App
-st.title("Neon Cyber Overlords v1")
-st.markdown("Rule the cyber metropolis with your Monanimal NFTs on Monad. Connect your wallet, hack, stake, and recover wisely!")
+st.title("Neon Cyber Overlords v1 - Testing Monad Limits")
+st.markdown("Connect, register, and perform actions against players. Hacks spam tiny tMONAD to test tx throughput. Push Monad's limits with frequent actions, queries, and multiplayer interactions!")
 
-# Power Progress Bar
-st.progress(st.session_state.player_power / 1000)
-st.caption(f"Power: {st.session_state.player_power}/1000 - Reach 1000 to win!")
-
-# Game Log Container
-with st.container():
-    st.subheader("Game Log")
-    log_container = st.container()
-    with log_container:
-        st.markdown('<div class="game-log">' + '<br>'.join(st.session_state.game_output) + '</div>', unsafe_allow_html=True)
-
-# Crash Handling
-if st.session_state.crashed:
-    st.error("System Crashed! Recover to continue.")
-    recover_from_crash()
-else:
-    # Random Event (triggered occasionally)
-    if random.random() < 0.1:  # Lower chance for cleaner UX
-        event = random.choice(["Airdrop! +100 MON", "Burn event: -50 MON", "Pool yield: +20 power"])
-        st.session_state.game_output.append(f"Random Event: {event}")
-        if "Airdrop" in event:
-            st.session_state.player_mon += 100
-            st.info("Airdrop received!")
-        elif "Burn" in event:
-            st.session_state.player_mon -= 50
-            st.warning("Tokens burned!")
-        elif "yield" in event:
-            st.session_state.player_power += 20
-            st.success("Yield gained!")
-
-    # Win Check
-    if st.session_state.player_power >= 1000:
-        st.balloons()
-        st.success("You've become the ultimate Neon Cyber Overlord! Game Won!")
-
-# Sidebar for Actions and Wallet
-with st.sidebar:
-    st.header("Wallet & Actions")
-    # Wallet Connection HTML/JS Component
-    connect_html = """
+# Wallet Connection
+st.components.v1.html("""
     <button onclick="connectWallet()" style="background-color: #00ffff; color: black; border: none; border-radius: 5px; padding: 8px 16px;">Connect Wallet</button>
     <p id="account" style="font-size: 12px; word-break: break-all;"></p>
     <script>
@@ -186,49 +353,115 @@ with st.sidebar:
         try {
           const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
           document.getElementById('account').innerHTML = 'Connected: ' + accounts[0];
-          parent.window.postMessage({type: 'wallet_connected', address: accounts[0]}, '*');  // Optional for future Python integration
+          parent.window.postMessage({type: 'wallet_connected', address: accounts[0]}, '*');
         } catch (error) {
           console.error(error);
+          alert('Connection failed: ' + error.message);
         }
       } else {
-        alert('MetaMask not detected! Install or enable it.');
+        alert('MetaMask not detected! Install from metamask.io or enable extension.');
       }
     }
+    let web3 = new Web3(window.ethereum);
+    const contractAddress = '%s';
+    const abi = %s;
+    window.addEventListener('message', async (event) => {
+      if (event.data.type === 'perform_action') {
+        const { method, params } = event.data;
+        try {
+          const contract = new web3.eth.Contract(abi, contractAddress);
+          const tx = await contract.methods[method](...params).send({from: ethereum.selectedAddress});
+          console.log('Tx hash:', tx.transactionHash);
+        } catch (error) {
+          console.error(error);
+          alert('Action failed: ' + error.message);
+        }
+      }
+    });
     </script>
-    """
-    st.components.v1.html(connect_html, height=100)
-    st.session_state.connected = True  # Simulate enabled for now; in v2, check via JS message
+""" % (CONTRACT_ADDRESS, ABI), height=150)
 
-    # Guide to Add Monad Testnet
-    with st.expander("Add Monad Testnet to MetaMask"):
-        st.markdown("""
-        1. Open MetaMask > Networks > Add Network.
-        2. Network Name: Monad Testnet
-        3. New RPC URL: https://testnet-rpc.monad.xyz
-        4. Chain ID: 10143
-        5. Currency Symbol: tMONAD
-        6. Block Explorer URL: https://testnet.monad.xyz/explorer
-        7. Save and switch to it, then connect above.
-        """)
+# Listen for connection (set address)
+connected_address = st.text_input("Enter your connected address (for testing):", value=st.session_state.connected_address or "")
+if connected_address:
+    st.session_state.connected_address = connected_address
 
-    if not st.session_state.connected:
-        st.info("Connect your wallet to enable actions.")
-    else:
-        st.header("Game Actions")
-        if st.button("Hack", key="hack_btn"):
-            hack_action()
-            st.rerun()
-        stake_amount = st.number_input("MON to Stake", min_value=1, max_value=st.session_state.player_mon, value=100)
-        if st.button("Stake", key="stake_btn"):
-            stake_action(stake_amount)
-            st.rerun()
-
-# Inventory Expander
-with st.expander("View Inventory"):
-    st.text(display_inventory())
-
-# Reset Button
-if st.sidebar.button("Reset Game", key="reset_btn"):
-    for key in list(st.session_state.keys()):
-        del st.session_state[key]
+# Refresh Button to test query limits
+if st.button("Refresh Game (Test Query Load)"):
+    fetch_players()
+    fetch_my_data()
+    fetch_action_history()
     st.rerun()
+
+with st.expander("Monad Testnet Setup"):
+    st.markdown("""
+    Network Name: Monad Testnet
+    RPC: https://monad-testnet.g.alchemy.com/v2/kgLrnOrgMfbKihXEBsjt9
+    Chain ID: 10143
+    Symbol: tMONAD
+    Explorer: https://testnet.monad.xyz/explorer
+    Get test tMONAD from faucet if needed.
+    """)
+
+# Power Progress (test UI updates)
+st.progress(st.session_state.my_data["power"] / 1000)
+st.caption(f"Power: {st.session_state.my_data['power']}/1000 - Reach 1000 to win!")
+
+# Game Log (test frequent updates)
+st.subheader("Game Log")
+st.markdown('<div class="game-log">' + '<br>'.join(st.session_state.game_output) + '</div>', unsafe_allow_html=True)
+
+# Live Graph (test data fetching/processing limits)
+st.subheader("Live Blockchain Activity Graph (Test Query/Render Load)")
+plot_activity_graph()
+
+# Players List (test list fetching)
+st.subheader("Online Players (Test Multiplayer Scale)")
+for p in st.session_state.players:
+    st.write(p)
+
+# Actions Sidebar (test tx limits with spam)
+with st.sidebar:
+    st.header("Actions (Push Tx Limits)")
+    if st.button("Register (One-Time)"):
+        st.components.v1.html("""<script>parent.window.postMessage({type: 'perform_action', method: 'register', params: []}, '*');</script>""", height=0)
+        st.info("Registration tx sent - check explorer for confirmation.")
+    target = st.selectbox("Select Target (for Attacks)", st.session_state.players)
+    if st.button("Hack (Spam Tiny tMONAD to Test Throughput)"):
+        st.components.v1.html("""<script>parent.window.postMessage({type: 'perform_action', method: 'hack', params: ['%s']}, '*');</script>""" % target, height=0)
+        st.info("Hack tx sent - spams to test Monad TPS!")
+    if st.button("Injection (Power Steal)"):
+        st.components.v1.html("""<script>parent.window.postMessage({type: 'perform_action', method: 'injection', params: ['%s']}, '*');</script>""" % target, height=0)
+    if st.button("Phishing (MON Steal)"):
+        st.components.v1.html("""<script>parent.window.postMessage({type: 'perform_action', method: 'phishing', params: ['%s']}, '*');</script>""" % target, height=0)
+    if st.button("Deploy Bot (Power Boost)"):
+        st.components.v1.html("""<script>parent.window.postMessage({type: 'perform_action', method: 'deployBot', params: []}, '*');</script>""", height=0)
+
+# Inventory (test data display)
+with st.expander("Your Inventory"):
+    st.json(st.session_state.my_data)
+
+# Win Check
+if st.session_state.my_data["power"] >= 1000:
+    st.balloons()
+    st.success("You've become the ultimate Neon Cyber Overlord! Game Won!")
+
+# Leaderboard to add excitement (test sorting/large lists)
+st.subheader("Leaderboard (Test Data Processing)")
+leaderboard = []
+for p in st.session_state.players:
+    try:
+        _, power, _ = contract.functions.getPlayer(p).call()
+        leaderboard.append({"Player": p, "Power": power})
+    except:
+        pass
+leaderboard_df = pd.DataFrame(leaderboard).sort_values("Power", ascending=False)
+st.dataframe(leaderboard_df)
+
+# Fun Element: Spam Test Button (to push Monad limits)
+if st.button("Stress Test: Perform 10 Hacks in Loop (WARNING: Costs MON, Tests TPS)"):
+    st.warning("This will send 10 hack tx in sequence - monitor explorer for Monad performance!")
+    for _ in range(10):
+        random_target = random.choice(st.session_state.players) if st.session_state.players else st.session_state.connected_address
+        st.components.v1.html("""<script>parent.window.postMessage({type: 'perform_action', method: 'hack', params: ['%s']}, '*');</script>""" % random_target, height=0)
+        time.sleep(1)  # Slight delay to avoid instant rejection
